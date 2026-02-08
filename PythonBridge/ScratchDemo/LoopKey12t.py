@@ -35,11 +35,14 @@ def send_action_and_wait_time(int_value,t):
 jump =0
 while True:
         jump+=1
+        time.sleep(0.1)
+        send_action_and_wait_time(1009,0.1)
+        time.sleep(0.1)
         send_action_and_wait_time(1049,1.9)
         time.sleep(0.1)
         send_action_and_wait_time(1050,0.5)
         time.sleep(0.1)
-        send_action_and_wait_time(1051,0.1)
+        send_action_and_wait_time(1070,0.1)
         
         time.sleep(0.1)
         if jump%60==0:

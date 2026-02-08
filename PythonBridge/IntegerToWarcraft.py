@@ -81,9 +81,56 @@ print(f"Local IPs: {local_ips}")
 
 
 
-        
-        
+int_77_top_right_corner = 77000 #
 
+class ProcessPosition:
+
+    def __init__(self, process_handle):
+        self.process_handle  = process_handle
+        self.position_x = 0
+        self.position_y = 0
+        self.width = 0
+        self.height = 0
+        self.distance_from_zero = 0
+
+    def refresh_position(self):
+        try:
+            hwnd = self.process_handle
+            rect = ctypes.wintypes.RECT()
+            ctypes.windll.user32.GetWindowRect(hwnd, ctypes.byref(rect))
+            self.position_x = rect.left
+            self.position_y = rect.top
+            self.width = rect.right - rect.left
+            self.height = rect.bottom - rect.top
+            position_center_x = (rect.left + rect.right) // 2
+            position_center_y = (rect.top + rect.bottom) // 2
+            self.distance_from_zero = (position_center_x ** 2 + position_center_y ** 2) ** 0.5
+        except Exception as e:
+            print("Error while refreshing process position:", e)
+
+class HandleSortByScreenCenter:
+    def __init__(self, hwnds_array):
+        self.tarcked_process_positions = []
+        for hwnd in hwnds_array:
+            position = ProcessPosition(hwnd)
+            position.refresh_position()
+            self.tarcked_process_positions.append(position)
+        for process_position in self.tarcked_process_positions:
+            print(f"Handle: {process_position.process_handle}, Distance to Center: {process_position.distance_from_zero}")
+        self.sort_from_distance =[]
+        self.sort_from_distance = sorted(self.tarcked_process_positions, key=lambda p: p.distance_from_zero)
+
+    def get_with_index_from_zero(self, index):
+        if index < len(self.sort_from_distance):
+            return self.sort_from_distance[index].process_handle
+        else:
+            return None
+    def refresh_all_positions(self):
+        for process_position in self.tarcked_process_positions:
+            process_position.refresh_position()
+        self.sort_from_distance = sorted(self.tarcked_process_positions, key=lambda p: p.distance_from_zero)
+
+    
 
 user32 = ctypes.windll.user32
 
@@ -247,6 +294,7 @@ def find_in_all_count(title):
 
 all_found_windows_at_start = get_all_windows(window_title)
 
+all_from_center= HandleSortByScreenCenter([hwnd._hWnd for hwnd in all_found_windows_at_start])
 
 
 first_window_foundhwnd = find_window(window_title)
@@ -578,6 +626,16 @@ def push_test(window, press, key_id):
 def push_to_index_integer(int_index, int_value):
     global keyboard_mappings
     
+    # 77001 77003
+    bool_is_tag77 = int_index // 1000 % 100 == 77
+    if bool_is_tag77:
+        index_in_screen = (int_index % 1000)-1
+        hwnd_from_center = all_from_center.get_with_index_from_zero(index_in_screen)
+        # print(f"Tag 77 detected for index {int_index}, screen pos {index_in_screen}, real hwnd {hwnd_from_center}")
+        if hwnd_from_center is not None:
+            int_index = hwnd_from_center
+
+
     if int_index<0:
         int_index*=-1
     #print("start")

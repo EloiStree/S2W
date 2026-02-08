@@ -85,8 +85,10 @@ while True:
         if random.random() > 0.9:
             send_action(int_jump)
         # Select Boris
-        #/targetexact Silent Boris
-        #/targetexact Lindel the Snatcher
+        """
+        /targetexact Silent Boris
+        /targetexact Lindel the Snatcher
+        """
         print("Select Boris")
         send_action(int_power1)
         time.sleep(0.1)

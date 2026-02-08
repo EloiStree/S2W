@@ -9,7 +9,7 @@ int_power1=1049
 ip_target ="127.0.0.1"
 ip_target_port = 7073
 
-int_index = [1,2,3,4,5,6]
+int_index = [1,2,3,4,5,6,7,8]
 
 
 def send_index_integer_command( int1, int2):
