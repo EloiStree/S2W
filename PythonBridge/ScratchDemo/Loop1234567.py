@@ -75,8 +75,15 @@ int_f12 = 1123
 ip_target ="127.0.0.1"
 ip_target_port = 7074
 
-int_index = [2,3,4,5]
+int_index = [0]
 #int_index = [2]
+
+time_between_action_min=0.3
+time_between_action_max=0.5
+
+
+def get_time_to_wait_default():
+    return random.uniform(time_between_action_min, time_between_action_max)
 
 
 def send_index_integer_command( int1, int2):
@@ -103,13 +110,13 @@ def send_release_key_command( int1):
 def send_action(int_value):
     for i in int_index:
         send_index_integer_command(i, int_value)
-        send_index_integer_command(i, int_value+1000)
+        send_index_integer_command(i, int_value+1000)   
 
 def send_action_and_wait(int_value):
     for i in int_index:
         send_index_integer_command(i, int_value)
         send_index_integer_command(i, int_value+1000)
-    time.sleep(1.9)
+    time.sleep(get_time_to_wait_default())
 
 def send_action_and_wait_time(int_value,t):
     for i in int_index:
@@ -132,30 +139,20 @@ while True:
     bool_hunter_loop = True
     if bool_hunter_loop:
 
-        follow_and_target()
-        time.sleep(0.1)
 
-        send_action( int_power6)
-        time.sleep(0.1)
-        send_action( int_page_down)
-        send_action( int_page_up)
+        send_action( int_tab)
         send_action(int_interaction)
         time.sleep(0.1)
-        send_action_and_wait(int_power3) # aim attack
-        send_action_and_wait(int_power4) # rapid fire
+        send_action_and_wait(int_power1) 
+        send_action_and_wait(int_power2) 
+        send_action_and_wait(int_power3) 
+        send_action_and_wait(int_power4) 
+        send_action( int_tab)
         send_action(int_interaction)
-
-        send_action_and_wait(int_power1) # steady shot
-        send_action_and_wait(int_power2) # arcane shot
-        send_action_and_wait(int_power3) #aim attack
-        send_action(int_interaction)
-
-        send_action(int_power8) #heal pet
-        time.sleep(0.1)
-        send_action_and_wait(int_power5) #kill shot
-        send_action_and_wait(int_power9) #heal
-        send_action_and_wait(int_power0) #fake death
-        send_action(int_interaction)
+        send_action_and_wait(int_power5) 
+        send_action_and_wait(int_power6) 
+        send_action_and_wait(int_power7) 
+        
 
 
 
