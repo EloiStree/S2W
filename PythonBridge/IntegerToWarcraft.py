@@ -30,7 +30,7 @@ if len(sys.argv) > 2:
 
 
 
-debug_at_pression_send=True
+debug_at_pression_send=False
 
 
 use_print_log=True
@@ -79,6 +79,49 @@ local_ips = get_local_ips()
 print(f"Local IPs: {local_ips}")
             
 
+
+class DelayedIndexIntegerInMilliseconds:
+    def __init__(self, int_index, int_value, when_to_execute):
+        self.int_index = int_index
+        self.int_value = int_value
+        self.when_to_execute = when_to_execute
+
+class DelayedIntegerInMilliseconds:
+    def __init__(self, int_value, when_to_execute):
+        self.int_value = int_value
+        self.when_to_execute = when_to_execute
+
+
+class IntegetDelayrManager:
+    def __init__(self):
+        self.delayed_index_integer_list = []
+        self.delayed_integer_list = []    
+
+    def get_time_in_milliseconds(self):
+        return int(time.time_ns() / 1_000_000)
+    
+    def add_delayed_index_integer(self, int_index, int_value, delay_in_ms):
+        execute_time = self.get_time_in_milliseconds() + delay_in_ms
+        delayed_index_integer = DelayedIndexIntegerInMilliseconds(int_index, int_value, execute_time)
+        self.delayed_index_integer_list.append(delayed_index_integer)
+    
+    def add_delayed_integer(self, int_value, delay_in_ms):
+        execute_time = self.get_time_in_milliseconds() + delay_in_ms
+        delayed_integer = DelayedIntegerInMilliseconds(int_value, execute_time)
+        self.delayed_integer_list.append(delayed_integer)
+
+    
+    def check_and_remove_integer_ready(self):
+        current_time = self.get_time_in_milliseconds()
+        ready_integers = [di for di in self.delayed_integer_list if di.when_to_execute <= current_time]
+        ready_index_integers = [dii for dii in self.delayed_index_integer_list if dii.when_to_execute <= current_time]
+        self.delayed_integer_list = [di for di in self.delayed_integer_list if di.when_to_execute > current_time]
+        self.delayed_index_integer_list = [dii for dii in self.delayed_index_integer_list if dii.when_to_execute > current_time]
+        return ready_integers, ready_index_integers
+    
+    
+
+int_delayer = IntegetDelayrManager()
 
 
 int_77_top_right_corner = 77000 #
@@ -608,7 +651,7 @@ def push_test(window, press, key_id):
     
 
     
-    print(f"Test {press} {key_id} to {window.title} / {window._hWnd}")
+    #print(f"Test {press} {key_id} to {window.title} / {window._hWnd}")
     if window:
         if press==True:
             if debug_at_pression_send:
@@ -681,27 +724,27 @@ def push_to_index_integer(int_index, int_value):
     else:
         
     
-        print(f"A Push {int_value} to Window {int_index} ({key_info[0].name} / {key_info[0].hexadecimal})")
-        print(f"B Push {key_info[0]}")
+        #print(f"A Push {int_value} to Window {int_index} ({key_info[0].name} / {key_info[0].hexadecimal})")
+        #print(f"B Push {key_info[0]}")
 
         ## Is player index existing in register
         if( int_index in player_index_to_window_index):
-            print(f"C Push {int_value} to Window {int_index} ({key_info[0].name} / {key_info[0].hexadecimal})")
+            #print(f"C Push {int_value} to Window {int_index} ({key_info[0].name} / {key_info[0].hexadecimal})")
             ## Get the list of window index for this player to broadcast
             window_index_list = player_index_to_window_index[int_index]
             ## For each window index to broadcast
             for window_index in window_index_list:
-                print(f"D Push {int_value} to Window {int_index} ({key_info[0].name} / {key_info[0].hexadecimal})")
+                #print(f"D Push {int_value} to Window {int_index} ({key_info[0].name} / {key_info[0].hexadecimal})")
                 ## If the window index in range of existing one at start
                 if window_index < len(all_found_windows_at_start):
-                        print(f"E Push {int_value} to Window {int_index} ({key_info[0].name} / {key_info[0].hexadecimal})")
+                        #print(f"E Push {int_value} to Window {int_index} ({key_info[0].name} / {key_info[0].hexadecimal})")
                         h = all_found_windows_at_start[window_index]._hWnd
                         ## If the value is existing in the mapping allows to player
                         int_value_as_string = str(int_value)
                         
-                        print (f"EC Push {int_value} vs {window_index}")
+                        # print (f"EC Push {int_value} vs {window_index}")
                         # if int_index == window_index:
-                        print (f"{int_value}  {key_info[1]}   {key_info[2]}")
+                        #print (f"{int_value}  {key_info[1]}   {key_info[2]}")
                         if key_info[1]:
                             push_test(all_found_windows_at_start[window_index], True, key_info[0].decimal)
                             
@@ -725,10 +768,23 @@ def push_to_index_integer(int_index, int_value):
 
 
 
-
+async def async_delayer():
+    
+    global int_delayer
+    while True:
+        await asyncio.sleep(0.0001)
+        # display number of waiting value
+        # print (f"Delayed integers: {len(int_delayer.delayed_integer_list)} | Delayed index integers: {len(int_delayer.delayed_index_integer_list)}")
+        iid_value,iid_index_value = int_delayer.check_and_remove_integer_ready()
+        for iid in iid_value:
+            set_clipboard_if_integer_found(iid.int_value)
+            push_to_all_integer(iid.int_value)
+        for iid_index in iid_index_value:
+            set_clipboard_if_integer_found(iid_index.int_value)
+            push_to_index_integer(iid_index.int_index, iid_index.int_value)
 
 async def async_task():
-        
+        global int_delayer
         print("Async task started")
         await asyncio.sleep(2)
         print("Async task ready")
@@ -775,19 +831,45 @@ async def async_task():
                     push_to_index_integer(int_index, int_value)
                 elif byte_counter == 12:
                     int_value, long_data_2 = struct.unpack("<iQ", data)
-                    push_to_all_integer(int_value)
-                    int_value_found= True
-                    if use_print_log:
-                        print("Value", int_value)
+                    if long_data_2 < 1000*25*3600:
+                        print(f"Delay int {int_value} in {long_data_2} ms")
+                        int_delayer.add_delayed_integer(int_value, long_data_2)
+                    else:
+                        int_value_found= True
+                        if use_print_log:
+                            print("Value", int_value)
+                        push_to_all_integer(int_value)
                 elif byte_counter == 16:
                     int_index, int_value, long_data_2 = struct.unpack("<iiQ", data)
-                    int_value_found= True
-                    if use_print_log:
-                        print("Index", int_index, "Value", int_value)
-                    push_to_index_integer(int_index, int_value)
+                    if long_data_2 < 1000*25*3600:
+                        print(f"Delay int {int_value} at index {int_index} in {long_data_2} ms")
+                        int_delayer.add_delayed_index_integer(int_index, int_value,long_data_2)
+                    else:
+                        int_value_found= True
+                        if use_print_log:
+                            print("Index", int_index, "Value", int_value)
+                        push_to_index_integer(int_index, int_value)
+
+                else:
+                    # cut in piece if more than 16 byte and try to find int in it
+                    print(f"Start block of {byte_counter} bytes")
+                    int_pack_count = byte_counter /16
+                    for i in range(int(int_pack_count)):
+                        int_index, int_value, long_data_2 = struct.unpack("<iiQ", data[i*16:(i+1)*16])
+                        if long_data_2 < 1000*25*3600:
+                            print(f"Delay int {int_value} at index {int_index} in {long_data_2} ms")
+                            int_delayer.add_delayed_index_integer(int_index, int_value,long_data_2)
+                        else:
+                            int_value_found= True
+                            if use_print_log:
+                                print("Index", int_index, "Value", int_value)
+                            push_to_index_integer(int_index, int_value)
+                    print(f"End block of {byte_counter} bytes with {int_pack_count} int packs")
 
                 if int_value_found:
                     set_clipboard_if_integer_found(int_value)
+
+               
 
 
            
@@ -1387,8 +1469,211 @@ if __name__ == "__main__":
     "0xFB":"0xFB",
     "0xFD":"0xFD"
 }
+    integer_to_char = {
+        4032: " ",
+        4033: "!",
+        4034: '"',
+        4035: "#",
+        4036: "$",
+        4037: "%",
+        4038: "&",
+        4039: "'",
+        4040: "(",
+        4041: ")",
+        4042: "*",
+        4043: "+",
+        4044: ",",
+        4045: "-",
+        4046: ".",
+        4047: "/",
+        4048: "0",
+        4049: "1",
+        4050: "2",
+        4051: "3",
+        4052: "4",
+        4053: "5",
+        4054: "6",
+        4055: "7",
+        4056: "8",
+        4057: "9",
+        4058: ":",
+        4059: ";",
+        4060: "<",
+        4061: "=",
+        4062: ">",
+        4063: "?",
+        4064: "@",
+        4065: "A",
+        4066: "B",
+        4067: "C",
+        4068: "D",
+        4069: "E",
+        4070: "F",
+        4071: "G",
+        4072: "H",
+        4073: "I",
+        4074: "J",
+        4075: "K",
+        4076: "L",
+        4077: "M",
+        4078: "N",
+        4079: "O",
+        4080: "P",
+        4081: "Q",
+        4082: "R",
+        4083: "S",
+        4084: "T",
+        4085: "U",
+        4086: "V",
+        4087: "W",
+        4088: "X",
+        4089: "Y",
+        4090: "Z",
+        4091: "[",
+        4092: "\\",
+        4093: "]",
+        4094: "^",
+        4095: "_",
+        4096: "`",
+        4097: "a",
+        4098: "b",
+        4099: "c",
+        4100: "d",
+        4101: "e",
+        4102: "f",
+        4103: "g",
+        4104: "h",
+        4105: "i",
+        4106: "j",
+        4107: "k",
+        4108: "l",
+        4109: "m",
+        4110: "n",
+        4111: "o",
+        4112: "p",
+        4113: "q",
+        4114: "r",
+        4115: "s",
+        4116: "t",
+        4117: "u",
+        4118: "v",
+        4119: "w",
+        4120: "x",
+        4121: "y",
+        4122: "z",
+        4123: "{",
+        4124: "|",
+        4125: "}",
+        4126: "~",
+        4160: "\u00A0",
+        4161: "¡",
+        4162: "¢",
+        4163: "£",
+        4164: "¤",
+        4165: "¥",
+        4166: "¦",
+        4167: "§",
+        4168: "¨",
+        4169: "©",
+        4170: "ª",
+        4171: "«",
+        4172: "¬",
+        4173: "\u00AD",
+        4174: "®",
+        4175: "¯",
+        4176: "°",
+        4177: "±",
+        4178: "²",
+        4179: "³",
+        4180: "´",
+        4181: "µ",
+        4182: "¶",
+        4183: "·",
+        4184: "¸",
+        4185: "¹",
+        4186: "º",
+        4187: "»",
+        4188: "¼",
+        4189: "½",
+        4190: "¾",
+        4191: "¿",
+        4192: "À",
+        4193: "Á",
+        4194: "Â",
+        4195: "Ã",
+        4196: "Ä",
+        4197: "Å",
+        4198: "Æ",
+        4199: "Ç",
+        4200: "È",
+        4201: "É",
+        4202: "Ê",
+        4203: "Ë",
+        4204: "Ì",
+        4205: "Í",
+        4206: "Î",
+        4207: "Ï",
+        4208: "Ð",
+        4209: "Ñ",
+        4210: "Ò",
+        4211: "Ó",
+        4212: "Ô",
+        4213: "Õ",
+        4214: "Ö",
+        4215: "×",
+        4216: "Ø",
+        4217: "Ù",
+        4218: "Ú",
+        4219: "Û",
+        4220: "Ü",
+        4221: "Ý",
+        4222: "Þ",
+        4223: "ß",
+        4224: "à",
+        4225: "á",
+        4226: "â",
+        4227: "ã",
+        4228: "ä",
+        4229: "å",
+        4230: "æ",
+        4231: "ç",
+        4232: "è",
+        4233: "é",
+        4234: "ê",
+        4235: "ë",
+        4236: "ì",
+        4237: "í",
+        4238: "î",
+        4239: "ï",
+        4240: "ð",
+        4241: "ñ",
+        4242: "ò",
+        4243: "ó",
+        4244: "ô",
+        4245: "õ",
+        4246: "ö",
+        4247: "÷",
+        4248: "ø",
+        4249: "ù",
+        4250: "ú",
+        4251: "û",
+        4252: "ü",
+        4253: "ý",
+        4254: "þ",
+        4255: "ÿ",
+    }
 
-    asyncio.run(async_task())
+
+
     
-    
+    # Create and start two separate threads
+    delayer_thread = threading.Thread(target=asyncio.run, args=(async_delayer(),), daemon=True)
+    task_thread = threading.Thread(target=asyncio.run, args=(async_task(),), daemon=True)
+
+    delayer_thread.start()
+    task_thread.start()
+
+    # Keep the main thread alive
+    delayer_thread.join()
+    task_thread.join()
     
