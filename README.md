@@ -1007,6 +1007,6 @@ Use the following mappings to play the mini-games:
 | Left Arrow  | 1337     | 2337     |
 | Right Arrow | 1333     | 2333     |
 | A Button    | 1300     | 2300     |
-| B Button    | 1301     | 2301     |
+| B Button    | 1302     | 2302     |
 
 
