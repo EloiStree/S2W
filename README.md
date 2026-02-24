@@ -1016,19 +1016,18 @@ For example:
 * `1286` → Press the button mapped to **NES B** (can be a keyboard key, Xbox B, Xbox A, etc.)
 
 ### NES Dedicated Mapping
+| Action      | Press | Release | Local Remap Press | Local Remap  Release |
+| ----------- | ----- | ------- | ----- | ------- |
+| Up Arrow    | 1281  | 2281    | 1291  | 2291    |
+| Right Arrow | 1282  | 2282    | 1292  | 2292    |
+| Down Arrow  | 1283  | 2283    | 1293  | 2293    |
+| Left Arrow  | 1284  | 2284    | 1294  | 2294    |
+| A Button    | 1285  | 2285    | 1295  | 2295    |
+| B Button    | 1286  | 2286    | 1296  | 2296    |
+| Menu Left   | 1287  | 2287    | 1297  | 2297    |
+| Menu Right  | 1288  | 2288    | 1298  | 2298    |
 
-| Action      | Press | Release |
-| ----------- | ----- | ------- |
-| Up Arrow    | 1281  | 2281    |
-| Right Arrow | 1282  | 2282    |
-| Down Arrow  | 1283  | 2283    |
-| Left Arrow  | 1284  | 2284    |
-| A Button    | 1285  | 2285    |
-| B Button    | 1286  | 2286    |
-| Menu Left   | 1287  | 2287    |
-| Menu Right  | 1288  | 2288    |
-
----
+Local Remap*: Listen and replace localy
 
 ## Xbox Simulation Mapping (Using NES)
 
@@ -1041,7 +1040,9 @@ If you want to simulate Xbox-style inputs through the NES system:
 | Down Arrow  | 1335  | 2335    |
 | Left Arrow  | 1337  | 2337    |
 | A Button    | 1300  | 2300    |
-| B Button    | 1302  | 2302    |
+| B Button (B)    | 1302  | 2302    |
+| B Button (X)   | 1301  | 2301    |
+| B Button (Y)   | 1303  | 2303    |
 | Menu Left   | 1309  | 2309    |
 | Menu Right  | 1308  | 2308    |
 
