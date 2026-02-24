@@ -986,27 +986,62 @@ You can apparently do so much more with USB... But I am not sure it would be wis
   - https://www.usb.org/sites/default/files/hut1_21_0.pdf#page=118
 
 
-
 ## NES Mini Multiplayer Game
 
-For this project, I created two Unity packages to support NES-style mini-games with multiplayer functionality.
-Each action is mapped to an integer value from the Xbox controller input system.
+For this project, I developed two packages to support NES-style mini-games with multiplayer features in both Unity and Godot.  
+Each player action is encoded as an integer value, based on input from an Xbox controller or a custom NES mapping.  
 
-Package:
-- https://github.com/EloiStree/2026_01_18_upm_nes_controller_udp
-- https://github.com/EloiStree/2026_01_18_upm_nes_udp_multiplayer
+### Packages
 
-Use the following mappings to play the mini-games:
+**Unity**
 
-| Action      | Player 1 | Player 2 |
-| ----------- | -------- | -------- |
-| Menu Left   | 1309     | 2309     |
-| Menu Right  | 1308     | 2308     |
-| Up Arrow    | 1331     | 2331     |
-| Down Arrow  | 1335     | 2335     |
-| Left Arrow  | 1337     | 2337     |
-| Right Arrow | 1333     | 2333     |
-| A Button    | 1300     | 2300     |
-| B Button    | 1302     | 2302     |
+* [https://github.com/EloiStree/2026_01_18_upm_nes_controller_udp](https://github.com/EloiStree/2026_01_18_upm_nes_controller_udp)
+* [https://github.com/EloiStree/2026_01_18_upm_nes_udp_multiplayer](https://github.com/EloiStree/2026_01_18_upm_nes_udp_multiplayer)
 
+**Godot**
+
+* [https://github.com/EloiStree/2026_01_18_gdp_nes_controller_udp](https://github.com/EloiStree/2026_01_18_gdp_nes_controller_udp)
+* [https://github.com/EloiStree/2026_01_18_gdp_nes_udp_multiplayer](https://github.com/EloiStree/2026_01_18_gdp_nes_udp_multiplayer)
+
+---
+
+## Input Mapping
+
+In the first exercise, I reused the Xbox input mapping for NES controls. It works, but it is more appropriate to define a dedicated NES mapping, especially for remapping mini-games.
+
+For example:
+
+* `1281` → Press the button currently mapped to **Up Arrow**
+* `1331` → Press the button remapped behind **Up Arrow**
+* `1286` → Press the button mapped to **NES B** (can be a keyboard key, Xbox B, Xbox A, etc.)
+
+### NES Dedicated Mapping
+
+| Action      | Press | Release |
+| ----------- | ----- | ------- |
+| Up Arrow    | 1281  | 2281    |
+| Right Arrow | 1282  | 2282    |
+| Down Arrow  | 1283  | 2283    |
+| Left Arrow  | 1284  | 2284    |
+| A Button    | 1285  | 2285    |
+| B Button    | 1286  | 2286    |
+| Menu Left   | 1287  | 2287    |
+| Menu Right  | 1288  | 2288    |
+
+---
+
+## Xbox Simulation Mapping (Using NES)
+
+If you want to simulate Xbox-style inputs through the NES system:
+
+| Action      | Press | Release |
+| ----------- | ----- | ------- |
+| Up Arrow    | 1331  | 2331    |
+| Right Arrow | 1333  | 2333    |
+| Down Arrow  | 1335  | 2335    |
+| Left Arrow  | 1337  | 2337    |
+| A Button    | 1300  | 2300    |
+| B Button    | 1302  | 2302    |
+| Menu Left   | 1309  | 2309    |
+| Menu Right  | 1308  | 2308    |
 
