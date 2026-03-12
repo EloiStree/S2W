@@ -1,3 +1,7 @@
+Version Hardware: [PicoS2W](https://github.com/EloiStree/PicoS2W)
+
+----------
+
 # Scratch To Warcraft
 
 Learn code by playing games like Warcraft 1,2,3 and World of Warcraft 😁.  
