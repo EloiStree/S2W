@@ -1,3 +1,7 @@
+Soft: [S2W](https://github.com/EloiStree/PicoS2W), [XOMI](https://github.com/EloiStree/XOMI) Hard: [PicoS2W](https://github.com/EloiStree/PicoS2W), [XESP32](https://github.com/EloiStree/XESP32)
+
+-------------------------------------
+
 Version Hardware: [PicoS2W](https://github.com/EloiStree/PicoS2W)
 
 ----------
