@@ -1,3 +1,7 @@
+**🕹️🎮 Input Injection Hack Tool:** [S2W⌨️](https://github.com/EloiStree/PicoS2W) - [XOMI🎮](https://github.com/EloiStree/XOMI) - [PicoS2W⌨️](https://github.com/EloiStree/PicoS2W) - [XESP32🎮](https://github.com/EloiStree/XESP32) - [PyJoy🕹️](https://github.com/EloiStree/PyJoy)
+
+----------
+
 # Scratch To Warcraft
 
 Learn code by playing games like Warcraft 1,2,3 and World of Warcraft 😁.  
@@ -240,6 +244,7 @@ If in OS context
 **1599998888**
 - 15 Mouse Move in application focus screen
   - 14 Mouse Move on OS screen
+  - 16 Move Relatively to last position
 - 9999: percent width screen 0-9999 Left Right
 - 8888: percent height screen 0-9999 Down Top
 
@@ -252,11 +257,13 @@ If in OS context
 | Mouse Button 4         | 1263  | 2263    |
 | Mouse Button 5         | 1264  | 2264    |
 | Mouse Double Click Left | 1265  | 2265    |
-| Mouse Triple Click Left | 1266  | 2266    |
+| Mouse Double Click Middle | 1266 | 2266    |
 | Mouse Double Click Right | 1267 | 2267    |
-| Mouse Triple Click Right | 1268 | 2268    |
+| Scroll Up | 1268 | 2268    |
+| Scroll Down | 1269 | 2269    |
+| Scroll Left | 1270 | 2270    |
+| Scroll Right | 1271 | 2271    |
 
-This is properly aligned and ensures clarity for readers.
 
 
 
@@ -973,7 +980,73 @@ Example for Arduino Receiver (need to be verified, Draft)
 # Ping Pong
 
 You need to find your device on the network, depending of if you use Websocket or UDP.
-Int 3123  Send back on port 3123 text:  IPV4|DeviceName|UniqueID  
+Int 3123  Send back on port 3123 text:  IPV4|DeviceName|UniqueID|AllowedMask 
 
 
+# Compute Control
+
+You can apparently do so much more with USB... But I am not sure it would be wise in the context of this project as I am focusing on gaming here.
+- https://github.com/adafruit/Adafruit_CircuitPython_HID/blob/main/adafruit_hid/consumer_control_code.py
+  - https://www.usb.org/sites/default/files/hut1_21_0.pdf#page=118
+
+
+## NES Mini Multiplayer Game
+
+For this project, I developed two packages to support NES-style mini-games with multiplayer features in both Unity and Godot.  
+Each player action is encoded as an integer value, based on input from an Xbox controller or a custom NES mapping.  
+
+### Packages
+
+**Unity**
+
+* [https://github.com/EloiStree/2026_01_18_upm_nes_controller_udp](https://github.com/EloiStree/2026_01_18_upm_nes_controller_udp)
+* [https://github.com/EloiStree/2026_01_18_upm_nes_udp_multiplayer](https://github.com/EloiStree/2026_01_18_upm_nes_udp_multiplayer)
+
+**Godot**
+
+* [https://github.com/EloiStree/2026_01_18_gdp_nes_controller_udp](https://github.com/EloiStree/2026_01_18_gdp_nes_controller_udp)
+* [https://github.com/EloiStree/2026_01_18_gdp_nes_udp_multiplayer](https://github.com/EloiStree/2026_01_18_gdp_nes_udp_multiplayer)
+
+---
+
+## Input Mapping
+
+In the first exercise, I reused the Xbox input mapping for NES controls. It works, but it is more appropriate to define a dedicated NES mapping, especially for remapping mini-games.
+
+For example:
+
+* `1281` → Press the button currently mapped to **Up Arrow**
+* `1331` → Press the button remapped behind **Up Arrow**
+* `1286` → Press the button mapped to **NES B** (can be a keyboard key, Xbox B, Xbox A, etc.)
+
+### NES Dedicated Mapping
+| Action      | Server Remap Press | Server Remap Release | Local Remap Press | Local Remap  Release |
+| ----------- | ----- | ------- | ----- | ------- |
+| Up Arrow    | 1281  | 2281    | 1291  | 2291    |
+| Right Arrow | 1282  | 2282    | 1292  | 2292    |
+| Down Arrow  | 1283  | 2283    | 1293  | 2293    |
+| Left Arrow  | 1284  | 2284    | 1294  | 2294    |
+| A Button    | 1285  | 2285    | 1295  | 2295    |
+| B Button    | 1286  | 2286    | 1296  | 2296    |
+| Menu Left   | 1287  | 2287    | 1297  | 2297    |
+| Menu Right  | 1288  | 2288    | 1298  | 2298    |
+* **Local Remap***: Listen and replace the keystroke locally.
+* **Server Remap***: It is up to the server to remap the keystroke.
+
+## NES as an Xbox
+
+If you want to simulate Xbox-style inputs through the NES system:
+
+| Action      | Press | Release |
+| ----------- | ----- | ------- |
+| Up Arrow    | 1331  | 2331    |
+| Right Arrow | 1333  | 2333    |
+| Down Arrow  | 1335  | 2335    |
+| Left Arrow  | 1337  | 2337    |
+| A Button    | 1300  | 2300    |
+| B Button (B)    | 1302  | 2302    |
+| B Button (X)   | 1301  | 2301    |
+| B Button (Y)   | 1303  | 2303    |
+| Menu Left   | 1309  | 2309    |
+| Menu Right  | 1308  | 2308    |
 
