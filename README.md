@@ -1,5 +1,4 @@
-**🕹️🎮 Input Injection Hack Tool:** [S2W⌨️](https://github.com/EloiStree/PicoS2W) - [XOMI🎮](https://github.com/EloiStree/XOMI) - [PicoS2W⌨️](https://github.com/EloiStree/PicoS2W) - [XESP32🎮](https://github.com/EloiStree/XESP32) - [PyJoy🕹️](https://github.com/EloiStree/PyJoy)
-
+**🕹️🎮 Input Injection Hack Tool:** [S2W⌨️](https://github.com/EloiStree/S2W) - [XOMI🎮](https://github.com/EloiStree/XOMI) - [PicoS2W⌨️](https://github.com/EloiStree/PicoS2W) - [XESP32🎮](https://github.com/EloiStree/XESP32)
 ----------
 
 # Scratch To Warcraft
