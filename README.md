@@ -1050,3 +1050,35 @@ If you want to simulate Xbox-style inputs through the NES system:
 | Menu Left   | 1309  | 2309    |
 | Menu Right  | 1308  | 2308    |
 
+
+
+
+
+
+
+# 16 Mini game using float array.
+
+The mini-game is based on floating-point values, such as controlling motors, stepper motors, and similar devices.
+
+* A **positive value** (e.g. `16`) updates the percentage using the full 11-step stack.
+* A **negative value** (e.g. `-16`) performs a precise, step-by-step update of the 11 percentage values.
+
+### Encoding Format
+
+Example:
+
+* `1698654321`
+
+  * `-9` represents **-1**
+  * `9` represents **1**
+  * `0` represents **0**
+
+Another example:
+
+* `-1699988888`
+
+  * `999` = Motor ID
+  * `88888` = Percentage value (11-value format)
+  * `0` = Zero
+
+
