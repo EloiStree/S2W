@@ -2,15 +2,17 @@
 
 ----------
 
-```
-https://github.com/EloiStree/S2W.git
-pip install pyperclip psutil pygetwindow websockets pywin32 PyAutoGUI pynput
-```
+
 
 # Scratch To Warcraft
 
 Learn code by playing games like Warcraft 1,2,3 and World of Warcraft 😁.  
 Also a bit of 10 Second Ninja.  
+
+Get the code  
+```
+https://github.com/EloiStree/S2W.git
+```
 
 You will need [python](https://www.python.org), and those module for Window:
 ```
