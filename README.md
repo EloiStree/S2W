@@ -2,6 +2,11 @@
 
 ----------
 
+```
+https://github.com/EloiStree/S2W.git
+pip install pyperclip psutil pygetwindow websockets pywin32 PyAutoGUI pynput
+```
+
 # Scratch To Warcraft
 
 Learn code by playing games like Warcraft 1,2,3 and World of Warcraft 😁.  
