@@ -1065,16 +1065,14 @@ If you want to simulate Xbox-style inputs through the NES system:
 
 The mini-game is based on floating-point values, such as controlling motors, stepper motors, and similar devices.
 
-* A **positive value** (e.g. `16`) updates the percentage using the full 11-step stack.
-* A **negative value** (e.g. `-16`) performs a precise, step-by-step update of the 11 percentage values.
+* A **positive value** set approximately 8 motors at the same time.
+* A **negative value** set one motor  at a time from 0-999
 
 ### Encoding Format
 
 Example:
 
 * `1698654321`
-
-  * `-9` represents **-1**
   * `9` represents **1**
   * `0` represents **0**
 
