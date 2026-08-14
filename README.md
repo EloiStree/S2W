@@ -1025,16 +1025,16 @@ For example:
 * `1286` → Press the button mapped to **NES B** (can be a keyboard key, Xbox B, Xbox A, etc.)
 
 ### NES Dedicated Mapping
-| Action      | Server Remap Press | Server Remap Release | Local Remap Press | Local Remap  Release |
-| ----------- | ----- | ------- | ----- | ------- |
-| Up Arrow    | 1281  | 2281    | 1291  | 2291    |
-| Right Arrow | 1282  | 2282    | 1292  | 2292    |
-| Down Arrow  | 1283  | 2283    | 1293  | 2293    |
-| Left Arrow  | 1284  | 2284    | 1294  | 2294    |
-| A Button    | 1285  | 2285    | 1295  | 2295    |
-| B Button    | 1286  | 2286    | 1296  | 2296    |
-| Menu Left   | 1287  | 2287    | 1297  | 2297    |
-| Menu Right  | 1288  | 2288    | 1298  | 2298    |
+| Action      | Server Remap Press | Server Remap Release 
+| ----------- | ----- | ------- | 
+| Up Arrow    | 1281  | 2281    | 
+| Right Arrow | 1282  | 2282    | 
+| Down Arrow  | 1283  | 2283    | 
+| Left Arrow  | 1284  | 2284    |
+| A Button    | 1285  | 2285    | 
+| B Button    | 1286  | 2286    | 
+| Menu Left   | 1287  | 2287    | 
+| Menu Right  | 1288  | 2288    | 
 * **Local Remap***: Listen and replace the keystroke locally.
 * **Server Remap***: It is up to the server to remap the keystroke.
 
