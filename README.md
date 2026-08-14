@@ -2,8 +2,6 @@
 
 ----------
 
-
-
 # Scratch To Warcraft
 
 Learn code by playing games like Warcraft 1,2,3 and World of Warcraft 😁.  
