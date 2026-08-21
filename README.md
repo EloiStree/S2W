@@ -763,16 +763,17 @@ For simplicity, here’s a beginner-friendly reference using values 0–127 in t
 - **1727** – Play full note 127 | **2727** – Release note 127  
 - **1728** – Press all notes | **2728** – Release all notes  
 
----
 
-In tribute to *Mordhau*:
-
-- **1729** – Switch to Flute | **2729** – Switch to Muse  
-- **1730** – Play note 0  
-- **1790** – Play note 60  
-
-*Note: Mordhau mode does not use note releases.*
-
+```
+# 1600 – Play full note 0 | 2600 – Release note 0
+# 1727 – Play full note 127 | 2727 – Release note 127
+# Format: 13 99 888 777
+# Example: 1301065125
+## 13 I am a midi note
+## 99 I am on this channel (0 means that the following is a controller).
+## 888 I am a note number
+## 777 I am a velocity
+```
 
 ----------------
 
