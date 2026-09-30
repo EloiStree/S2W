@@ -1,232 +1,464 @@
-
 // ==UserScript==
-// @name         Push Scratch wsvar to Local WS IID
+// @name         Push Scratch wsvar to Local WebSocket
 // @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  Source: https://github.com/EloiStree/2024_05_10_TamperMonkeyToRsaTunnelingIID/blob/main/ScratchToLocalWebsocket/ScratchVarToLocalWebsocket.js
-// @description  Test zone: https://scratch.mit.edu/projects/1018462085
-// @author       Eloi stree
+// @version      0.3.0
+// @description  Sends Scratch variables named "wsvar ..." to a local WebSocket server.
+// @author       Eloi Stree
 // @match        https://scratch.mit.edu/projects/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=integergames.be
-// @require      http://code.jquery.com/jquery-1.8.3.min.js
-
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=scratch.mit.edu
 // @grant        none
-
 // ==/UserScript==
-//TO LOOK LATER
-//https://github.com/travist/jsencrypt
-(function() {
+
+(function () {
     'use strict';
 
-/*
-What this code do ?
-This code overlook at the HTML code when you are on https://scratch.mit.edu/projects/*
-It searches about the HTML of a variable display in the scratch game that are a HTML Div code.
-The div Id are
-- name: .monitor_label_ci1ok
-- value: .monitor_value_3Yexa
+    /*
+     * ============================================================
+     * Configuration
+     * ============================================================
+     */
 
-It add the key value in a dictionary if the value changed only to avoid spam when send outside of the script.
+    const SOCKET_URL = 'ws://localhost:7072';
 
-With the help of a unsecure websocket client it send the value as a integer converted to 4 bytes in little format.
-To use this script you need to recover it with a websocket server of your own and turn back the 4 bytes to integer.
+    const SCAN_INTERVAL_MS = 100;
 
-*/
+    const RECONNECT_DELAY_MS = 1000;
+    const MAX_RECONNECT_DELAY_MS = 10000;
 
-
-//Just show in console that the script is injected
-console.log("Hello Tamper to Integer :).\n Websocket client will try to connect to websocket server. \n  ")
-
-// Creating url to push on local computer at the port 7073 the integer that changed.
-var socketUrl= 'ws://localhost:7072';
-    
-    
-// If you use the default pi server behind ddns
-socketUrl= 'wss://apint.ddns.net:4725/';
-// If you use relay server on your computer
-socketUrl= 'ws://localhost:7072';
-/////////////////////////////////////////////// SWICH THOSE LINE BASED ON YOUR GOAL.
-
-console.log("Server link : "+socketUrl);
-
-// Defined the var of the future websocket client
-var socket = null;
-// Will be use to have a way to know that the server is still in theory connected
-var isConnectionValide=false;
-// Dictionnary that is storing the previous state when a change happened
-// Used to detect any change in the Scratch variable
-var previousData = {};
-
-// Do we want to display console log in the browser or not.
-var useConsoleDebug=false;
-
-/* This function is use to make some test. It allow to push randomply a integer if the connection is still active */
-   function PushMessageToServerRandomInteger(){
-       if(!isConnectionValide){
-           return;
-       }
-       const randomInt = Math.floor(Math.random() * 1000000000) + 1;
-       PushMessageToServerInteger(randomInt)
-
-   }
-    /*This function send an integer into a exportable value with the date of when it was detected as a ulong format */
-   function PushMessageToServerIntegerDate(integer){
-    if(!isConnectionValide){return;}
-      var value =integer;
-       // Get the current UTC time in milliseconds
-     const currentTimeMillis = Date.now();
-
-     // Convert to an unsigned long (assuming 64-bit)
-     const ulongVar = BigInt(currentTimeMillis);
-
-     // Create a byte array of length 12
-     const byteArray = new Uint8Array(12);
-     // Set the first 4 bytes of the array from the value in little-endian format
-     byteArray[0] = value & 0xFF;
-     byteArray[1] = (value >> 8) & 0xFF;
-     byteArray[2] = (value >> 16) & 0xFF;
-     byteArray[3] = (value >> 24) & 0xFF;
-
-     // Set the next 8 bytes of the array from ulongVar in little-endian format
-     const view = new DataView(byteArray.buffer);
-     view.setBigUint64(4, ulongVar, true);
-     socket.send(byteArray);
-    if(useConsoleDebug)
-     console.log("Random date with date:", value)
-}
+    // Keep this TRUE while testing.
+    const DEBUG = true;
 
 
-/*This function send an integer into a exportable value and don't attach to it a date value */
-function PushMessageToServerInteger(integer){
-    if(!isConnectionValide){return;}
+    /*
+     * ============================================================
+     * State
+     * ============================================================
+     */
 
-      var value =integer;
-     const byteArray = new Uint8Array(4);
-     byteArray[0] = value & 0xFF;
-     byteArray[1] = (value >> 8) & 0xFF;
-     byteArray[2] = (value >> 16) & 0xFF;
-     byteArray[3] = (value >> 24) & 0xFF;
-     socket.send(byteArray);
-    if(useConsoleDebug)
-     console.log("Int Pushed to web local server:", value)
-}
+    let socket = null;
+    let reconnectTimer = null;
+    let reconnectDelay = RECONNECT_DELAY_MS;
+
+    // Last value successfully sent for each wsvar.
+    const previousData = new Map();
 
 
+    /*
+     * ============================================================
+     * Logging
+     * ============================================================
+     */
 
-
-var server_is_offline=false;
-
-/*Try to reconnect with a new websocket client if it detect that the current is for any reason not there */
-function ReconnectIfOffline(){
-
-    if (socket !=null && socket && socket.readyState === WebSocket.OPEN) {
-    }
-    else{
-        isConnectionValide=false
-        try{
-            if(useConsoleDebug)
-            console.log('Try estabalish connection with: '+socketUrl);
-            socket = new WebSocket(socketUrl);
-            //socket = new WebSocket(socketUrl, null, { rejectUnauthorized: false });
-            // Event listener for when the connection is established
-            socket.addEventListener('open', () => {
-                console.log('WebSocket connection established');
-                isConnectionValide=true
-            });
-
-            // Event listener for incoming messages
-            socket.addEventListener('message', (event) => {
-                console.log('Received message from server:', event.data);
-
-            });
-
-            // Event listener for when the connection is closed
-            socket.addEventListener('close', () => {
-                console.log('WebSocket connection closed');
-                isConnectionValide=false
-
-            });
-
-            // Event listener for errors
-            socket.addEventListener('error', (error) => {
-                console.error('WebSocket error:', error);
-            });
-            server_is_offline=false;
-            console.log("Server Online");
-        }catch(Exception){
-            server_is_offline=true;
+    function debugLog(...args) {
+        if (DEBUG) {
+            console.log('[Scratch WS]', ...args);
         }
     }
-}
 
 
+    /*
+     * ============================================================
+     * WebSocket
+     * ============================================================
+     */
 
-    /*This will send key value as integer if it detect the variable start with "wsvar " and connection is open */
-    function sentKeyValueToOpenWebsocket(label, value) {
+    function isSocketOpen() {
+        return socket !== null &&
+               socket.readyState === WebSocket.OPEN;
+    }
 
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            const lowerStr = label.toLowerCase().trim();
 
-            if (lowerStr.startsWith("wsvar ")) {
-                const number = parseInt(value);
-                //console.log("The string starts with 'wsvar'");
-                if (!isNaN(number)) {
+    function connectWebSocket() {
 
-                    console.log("Change detectected wsvar int: "+value)
-                    PushMessageToServerInteger(number);
-                    //console.log("The string is a valid integer:", number);
-                } else {
-                    //console.log("The string is not a valid integer");
+        if (
+            socket &&
+            (
+                socket.readyState === WebSocket.OPEN ||
+                socket.readyState === WebSocket.CONNECTING
+            )
+        ) {
+            return;
+        }
+
+        clearReconnectTimer();
+
+        console.log(
+            '[Scratch WS] Connecting to:',
+            SOCKET_URL
+        );
+
+        try {
+
+            const ws = new WebSocket(SOCKET_URL);
+
+            ws.binaryType = 'arraybuffer';
+
+            socket = ws;
+
+
+            ws.addEventListener('open', () => {
+
+                if (socket !== ws) {
+                    return;
                 }
-            }
 
-        }
-    }
+                reconnectDelay = RECONNECT_DELAY_MS;
+
+                console.log(
+                    '[Scratch WS] Connected:',
+                    SOCKET_URL
+                );
+
+            });
 
 
-    /*This will look in the HTML code for the Scratch variable as HTML.
-    If it find the div of the key value that start with "wsvar ". It will set them in the dictionary and notify if it changed*/
-    function extractAndSendData() {
-        var dataString = '';
-        // Find all elements with class 'react-contextmenu-wrapper'
-        var elements = document.getElementsByClassName('react-contextmenu-wrapper');
-        // Iterate through each element
-        for (var i = 0; i < elements.length; i++) {
-            var element = elements[i];
-            // Find elements with classes 'monitor_label_ci1ok' and 'monitor_value_3Yexa' within current element
+            ws.addEventListener('message', (event) => {
 
-            var labelElement = element.querySelector('[class^="monitor_label_"]');
-            var valueElement = element.querySelector('[class^="monitor_value_"]');
+                debugLog(
+                    'Received from server:',
+                    event.data
+                );
 
-            // Extract text content from label and value elements
-            var label = labelElement ? labelElement.textContent.trim() : '';
-            var value = valueElement ? valueElement.textContent.trim() : '';
+            });
 
-            if (label && value) {
-                if(label.startsWith("wsvar ") ){
-                   dataString += label + ': ' + value + '\n';
-                    if (!previousData[label]) {
-                        previousData[label] = value;
-                        sentKeyValueToOpenWebsocket(label, value);
-                    } else {
-                        if (previousData[label] !== value) {
-                            previousData[label] = value;
 
-                            console.log("Change detectected: "+value)
-                            sentKeyValueToOpenWebsocket(label, value);
-                        }
-                    }
+            ws.addEventListener('error', (error) => {
+
+                console.error(
+                    '[Scratch WS] WebSocket error:',
+                    error
+                );
+
+            });
+
+
+            ws.addEventListener('close', (event) => {
+
+                if (socket !== ws) {
+                    return;
                 }
-            }
+
+                socket = null;
+
+                console.log(
+                    '[Scratch WS] Connection closed.',
+                    `code=${event.code}`
+                );
+
+                scheduleReconnect();
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                '[Scratch WS] Failed to create WebSocket:',
+                error
+            );
+
+            socket = null;
+
+            scheduleReconnect();
         }
     }
 
-    if(useConsoleDebug)
-        console.log("Interval :) Start ")
 
-    setInterval(ReconnectIfOffline, 1000);
-    setInterval(extractAndSendData,15);
-    if(useConsoleDebug)
-        console.log('Code end reach');
+    function scheduleReconnect() {
+
+        if (reconnectTimer !== null) {
+            return;
+        }
+
+        const delay = reconnectDelay;
+
+        debugLog(
+            `Reconnect scheduled in ${delay} ms`
+        );
+
+        reconnectTimer = setTimeout(() => {
+
+            reconnectTimer = null;
+
+            connectWebSocket();
+
+            reconnectDelay = Math.min(
+                reconnectDelay * 2,
+                MAX_RECONNECT_DELAY_MS
+            );
+
+        }, delay);
+    }
+
+
+    function clearReconnectTimer() {
+
+        if (reconnectTimer !== null) {
+
+            clearTimeout(reconnectTimer);
+
+            reconnectTimer = null;
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * Send uint32
+     * ============================================================
+     */
+
+    function sendUint32(value) {
+
+        if (!isSocketOpen()) {
+
+            debugLog(
+                'Cannot send because WebSocket is not open.'
+            );
+
+            return false;
+        }
+
+        const number = Number(value);
+
+        if (!Number.isInteger(number)) {
+
+            console.warn(
+                '[Scratch WS] Not an integer:',
+                value
+            );
+
+            return false;
+        }
+
+        if (
+            number < 0 ||
+            number > 0xFFFFFFFF
+        ) {
+
+            console.warn(
+                '[Scratch WS] Value outside uint32 range:',
+                number
+            );
+
+            return false;
+        }
+
+
+        const buffer = new ArrayBuffer(4);
+
+        const view = new DataView(buffer);
+
+        // uint32 little-endian
+        view.setUint32(
+            0,
+            number,
+            true
+        );
+
+
+        try {
+
+            socket.send(buffer);
+
+            console.log(
+                '[Scratch WS] Sent:',
+                number
+            );
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                '[Scratch WS] Send failed:',
+                error
+            );
+
+            return false;
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * Scratch variable detection
+     * ============================================================
+     *
+     * Scratch's monitor CSS class names can change.
+     *
+     * Instead of depending on:
+     *
+     * .react-contextmenu-wrapper
+     *
+     * monitor_label_xxx
+     * monitor_value_xxx
+     *
+     * we inspect elements containing the monitor text.
+     * ============================================================
+     */
+
+  function extractAndSendData() {
+
+    /*
+     * Find every DIV on the page.
+     */
+    const divs = document.querySelectorAll('div');
+
+    for (const div of divs) {
+
+        /*
+         * Look for "wsvar" in this DIV.
+         *
+         * We only use this DIV as the container.
+         */
+        const labelElement = div.querySelector(
+            '[class^="monitor_label_"]'
+        );
+
+        if (!labelElement) {
+            continue;
+        }
+
+        const label = labelElement.textContent.trim();
+
+        if (!label.toLowerCase().startsWith('wsvar ')) {
+            continue;
+        }
+
+        /*
+         * We found the DIV containing the wsvar.
+         *
+         * Now find the monitor VALUE INSIDE THIS DIV.
+         */
+        const valueElement = div.querySelector(
+            '[class^="monitor_value_"]'
+        );
+
+        if (!valueElement) {
+            debugLog(
+                'Found wsvar but no monitor value:',
+                label,
+                div
+            );
+
+            continue;
+        }
+
+        /*
+         * Extract ONLY the value.
+         */
+        const valueText = valueElement.textContent.trim();
+
+        debugLog(
+            'wsvar:',
+            label,
+            'value:',
+            valueText
+        );
+
+        /*
+         * Scratch can sometimes put extra whitespace in
+         * the value, so normalize it.
+         */
+        const value = valueText.replace(/\s+/g, '');
+
+        /*
+         * We only accept unsigned integers because the
+         * WebSocket protocol is uint32.
+         */
+        if (!/^\d+$/.test(value)) {
+
+            debugLog(
+                'Ignoring non-integer value:',
+                valueText
+            );
+
+            continue;
+        }
+
+        /*
+         * Convert the VALUE to a JavaScript number.
+         *
+         * The variable name is NOT sent.
+         */
+        const number = Number(value);
+
+        if (
+            !Number.isSafeInteger(number) ||
+            number < 0 ||
+            number > 0xFFFFFFFF
+        ) {
+
+            console.warn(
+                '[Scratch WS] Invalid uint32 value:',
+                number
+            );
+
+            continue;
+        }
+
+        /*
+         * Only send when the VALUE changes.
+         */
+        const previousValue = previousData.get(label);
+
+        if (previousValue === number) {
+            continue;
+        }
+
+        /*
+         * Send ONLY the numeric value.
+         */
+        if (!sendUint32(number)) {
+
+            debugLog(
+                'Could not send value:',
+                number
+            );
+
+            continue;
+        }
+
+        /*
+         * Remember what was successfully sent.
+         */
+        previousData.set(label, number);
+
+        console.log(
+            '[Scratch WS] Sent wsvar value:',
+            number
+        );
+    }
+}
+
+
+    /*
+     * ============================================================
+     * Startup
+     * ============================================================
+     */
+
+    console.log(
+        '[Scratch WS] Script loaded.'
+    );
+
+    console.log(
+        '[Scratch WS] WebSocket:',
+        SOCKET_URL
+    );
+
+
+    connectWebSocket();
+
+
+    /*
+     * Scan Scratch regularly.
+     */
+
+    setInterval(
+        extractAndSendData,
+        SCAN_INTERVAL_MS
+    );
+
 
 })();
