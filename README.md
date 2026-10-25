@@ -254,11 +254,22 @@ If in OS context
 - 9999: percent width screen 0-9999 Left Right
 - 8888: percent height screen 0-9999 Down Top
 
-**1619990888** Relative:  
-- 16 Move Relatively to cursor position
-- 1 negative value and 0 positive value
-- 999 is the left right value in pixel
-- 888 is the down top value in pixel
+**1699998888** Relative:  
+- 16 Move Relatively to cursor position as LRDT
+- 9999 is x left right as pixel
+- 8888 is y down of screen to up as pixel
+- 0-4999 is positive, 5000-9999 is negative value.
+
+```
+if value >= 1600000000 and value < 1700000000:
+	x_left_right_pixel = (value % 100000000) / 10000.0
+	y_down_top_pixel = (value % 100000000) % 10000.0
+	if x_left_right_pixel>5000:
+		x_left_right_pixel=-(x_left_right_pixel-5000)
+	if y_down_top_pixel>5000:
+		y_down_top_pixel=-(y_down_top_pixel-5000)
+	self.move_mouse_as_lrdt_of(x_left_right_pixel, y_down_top_pixel)
+```
 
 **Note:**  
 - With software you can move a mouse to percent of the screen.
