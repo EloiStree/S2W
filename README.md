@@ -268,7 +268,14 @@ If in OS context
 | Scroll Down | 1269 | 2269    |
 | Scroll Left | 1270 | 2270    |
 | Scroll Right | 1271 | 2271    |
-
+| Move To Border Top 		| 1272 | 2272 |
+| Move To Corner Top Right 	| 1273 | 2273 |
+| Move To Border Right 		| 1274 | 2274 |
+| Move To Corner Down Right | 1275 | 2275 |
+| Move To Border Down 		| 1276 | 2276 |
+| Move To Corner Down Left	| 1277 | 2277 |
+| Move To Border Left 		| 1278 | 2278 |
+| Move To Corner Top Left 	| 1279 | 2279 |
 
 
 
