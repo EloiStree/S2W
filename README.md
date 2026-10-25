@@ -246,12 +246,24 @@ If you want to do some round robin with the Xbox, you need switch the Window Foc
 
 If in OS context
 
-**1599998888**
+**1599998888** Global:
 - 15 Mouse Move in application focus screen
-  - 14 Mouse Move on OS screen
-  - 16 Move Relatively to last position
+  - For Multiboxing 
+- 14 Mouse Move on OS screen
+  - For Single window computer 
 - 9999: percent width screen 0-9999 Left Right
 - 8888: percent height screen 0-9999 Down Top
+
+**1619990888** Relative:  
+- 16 Move Relatively to cursor position
+- 1 negative value and 0 positive value
+- 999 is the left right value in pixel
+- 888 is the down top value in pixel
+
+**Note:**  
+- With software you can move a mouse to percent of the screen.
+  - Hardware can t do that.
+- Hardware mouse movement can easily detect your input hack. 
 
 
 | Label                   | Press | Release |
