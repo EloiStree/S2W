@@ -1116,3 +1116,33 @@ Another example:
   * `0` = Zero
 
 
+
+
+
+# HID Gamepad
+
+XInput is better for game compatibility, but Linux is more on the HID Gamepad input.
+But the HID Gamepad input is not unified on the gamepad mapping...
+
+If you use a compatible HID like a gamepad, you can have 32 buttons and 6 axis.
+
+Find the code with PicoS2W 
+<img width="767" height="771" alt="image" src="https://github.com/user-attachments/assets/5c790410-d8ee-4c48-ab90-7ca9a73dfd93" />
+
+
+1800 | 2800 |  Button 0
+1832 | 2832 |  Button 31
+1840 | 2840 |  Axis 0 0
+1841 | 2841 |  Axis 0 -1
+1849 | 2849 |  Axis 0 1
+1850 | 2850 |  Axis 1
+1860 | 2860 |  Axis 2
+1870 | 2870 |  Axis 3
+1880 | 2880 |  Axis 4
+
+
+
+
+
+
+
